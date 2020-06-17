@@ -6,7 +6,8 @@
         "laravel-searchzy",
         "laravel",
         "search",
-        "eloquent"
+        "eloquent",
+        "buscar"
     ],
     "homepage": "https://github.com/jhormantasayco/laravel-searchzy",
     "license": "MIT",
@@ -20,7 +21,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "illuminate/support": "^6.0",
+        "illuminate/support": "^6.0"
     },
     "require-dev": {
         "orchestra/testbench": "^4.0",
@@ -37,7 +38,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
+        "test": "./vendor/bin/phpunit",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
     },
     "config": {
