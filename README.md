@@ -1,10 +1,5 @@
 # Laravel Searchzy
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/jhormantasayco/laravel-searchzy.svg?style=flat-square)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
-[![Build Status](https://img.shields.io/travis/jhormantasayco/laravel-searchzy/master.svg?style=flat-square)](https://travis-ci.org/jhormantasayco/laravel-searchzy)
-[![Quality Score](https://img.shields.io/scrutinizer/g/jhormantasayco/laravel-searchzy.svg?style=flat-square)](https://scrutinizer-ci.com/g/jhormantasayco/laravel-searchzy)
-[![Total Downloads](https://img.shields.io/packagist/dt/jhormantasayco/laravel-searchzy.svg?style=flat-square)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
-
 [![Build Status](https://travis-ci.org/jhormantasayco/laravel-searchzy.svg?branch=master)](https://travis-ci.org/jhormantasayco/laravel-searchzy.svg?branch=master)
 [![Latest Stable on Packagist](https://poser.pugx.org/jhormantasayco/laravel-searchzy/v/stable)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
 [![Total Downloads](https://poser.pugx.org/jhormantasayco/laravel-searchzy/downloads)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
