@@ -12,31 +12,102 @@
 
 Simple and lightweight search to eloquent models.
 
-## Installation
+## Instalación
 
-You can install the package via composer:
+Puedes instalar el package vía composer:
 
 ```bash
 composer require jhormantasayco/laravel-searchzy
 ```
 
-## Usage
+## Uso en los Models
 
-To add searchzy in yours model you must:
+Para añadir searchzy deberas de hace lo siguiente:
 
-1. Use the trait `Jhormantasayco\LaravelSearchzy\Searchzy`.
-2. Specify which column will be used as the searches and filters column.
+1. Usar el trait `Jhormantasayco\LaravelSearchzy\Searchzy` en tus modelos.
+2. Especificar mediante un array asociativo que columnas serán usadas por searchzy para la búsqueda y filtrado (Las keys del array se refieren a los inputs del request y los values represetan las columnas - relaciones de búsqueda).
 
-Here's an example of how to implement the trait:
+Aquí hay un ejemplo:
 
 ``` php
-// Usage description here
+use Jhormantasayco\LaravelSearchzy\Searchzy;
+
+class MyModel extends Model
+{
+    use Searchzy;
+
+    /**
+     * The attributes that are searchable.
+     *
+     * @var array
+     */
+    protected $searchable = [
+        'nombre'      => 'name',
+        'dni'         => 'code',
+        'phone'       => 'phone',
+        'email'       => 'email',
+        'post'        => 'posts:title',
+        'descripcion' => 'posts:description',
+    ];
+
+    /**
+     * The attributes that are filterable.
+     *
+     * @var array
+     */
+    protected $filterable = [
+        'rol_id' => 'role_id',
+    ];
+}
 ```
+## Uso en los Controllers
+
+Simplemente tienes que añadir el scope de `searchzy` en tus consultas y listo. El resultado filtratá los regitros según lo definido en el Model.
+
+``` php
+public function index(){
+
+    // Obtiene los inputs del request y sus respectivos valores.
+    $params = Usuario::searchzyInputs();
+
+    // Realiza la consulta en la base de datos mediante el Model
+	$oUsuarios = Usuario::withCount(['posts AS posts_count'])
+                    ->with(['posts'])
+                    ->searchzy()
+                    ->orderBy('name')
+                    ->paginate();
+
+	return view('welcome.index', compact('params', 'oUsuarios'));
+}
+```
+
+## Uso en las Views
+
+Para implementar el campo de búsqueda en la vista deberás de hacer lo siguiente:
+
+``` html
+<input type="text" name="{{ config('searchzy.keyword') }}" value="{{ ${config('searchzy.keyword')} }}">
+```
+
+Sí usas el package de `laravelcollective/html` la implementación sería:
+
+``` blade
+{!! Form::text(config('searchzy.keyword'), ${config('searchzy.keyword')}, [
+    'class'       => 'form-control ',
+    'placeholder' => 'Buscar a un usuario por su nombre, dni, telefono, correo electrónico, titulo o descripción de sus posts'
+]) !!}
+```
+
+Y Listo, ya puedes usar searchzy y filtrar tus registros.
+
+### Demo
+
+Puede ver una demo del package en [https://searchzy.tasayco.com](https://searchzy.tasayco.com) cuyo repositorio es [https://github.com/jhormantasayco/laravel-searchzy-demo](https://github.com/jhormantasayco/laravel-searchzy-demo)
 
 ### Testing
 
 ``` bash
-composer test
+./vendor/bin/phpunit
 ```
 
 ### Changelog
