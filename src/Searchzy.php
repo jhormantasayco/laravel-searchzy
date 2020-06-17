@@ -8,14 +8,15 @@ use Illuminate\Support\Str;
 trait Searchzy {
 
     /**
-     * Define el array con los constraints (closures) por cada relación del Modelo.
+     * Agrupa todas los closures de las relaciones del Modelo, en forma de árbol.
      *
      * @var array
      */
     protected $relationConstraints = [];
 
     /**
-     * Define el array con los constraints (closures) por cada relación del Modelo.
+     * Define el array de las relaciones y el query de las relaciones. En el query
+     * ya se aplicaron las closures de cada relación.
      *
      * @var array
      */
@@ -36,14 +37,14 @@ trait Searchzy {
     protected $filterableInputs = [];
 
     /**
-     * Define el array con todos los inputs filterable del Modelo.
+     * Define el valor de la 'keyword' de searchzy.
      *
      * @var array
      */
     protected $searchableKeyword;
 
     /**
-     * Scope que realiza una busqueda con las relaciones del Modelo.
+     * Scope que realiza una búsqueda searchzy.
      *
      * @param  Illuminate\Database\Eloquent\Builder $query
      * @return Illuminate\Database\Eloquent\Builder
@@ -70,7 +71,7 @@ trait Searchzy {
     }
 
     /**
-     * Parsea los inputs de busqueda que tiene relación con el Modelo.
+     * Agrupa las relaciones del Modelo. Retorna un array 'arbol' de las relaciones y sus columnas.
      *
      * @param  array $arrInputs
      * @return array
@@ -93,7 +94,7 @@ trait Searchzy {
     }
 
     /**
-     * Parsea los inputs de busqueda del Modelo.
+     * Agrupas las columnas propias del Modelo.
      *
      * @param  array $arrInputs
      * @return array
@@ -114,22 +115,22 @@ trait Searchzy {
     }
 
     /**
-     * Parsea los inputs de busqueda del Modelo.
+     * Parsea los inputs de búsqueda del Modelo.
      *
      * @param  Builder $query
      * @return Builder
      */
     protected function parseInputsKeywordConstraints($query){
 
-        // Definición del where base de los atributos searchable.
+        //Aplicación del los where's de los atributos searchable propios del Modelo.
 
         $searchableModelInputs = $this->parseModelInputs($this->searchableInputsKeyword);
 
         $query = $query->where(function($query) use ($searchableModelInputs){
 
-            $query = $query->where(function($query) use ($searchableModelInputs){
+            // Aplicación de los where's en las columnas propias del Modelo.
 
-                // Aplicación de los where's searchable del Modelo.
+            $query = $query->where(function($query) use ($searchableModelInputs){
 
                 foreach ($searchableModelInputs as $attribute) {
 
@@ -144,7 +145,7 @@ trait Searchzy {
                 }
             });
 
-            // Aplicación de los where's de las relaciones del Modelo.
+            // Aplicación de los where's de las relaciones del Modelo que cuyo valor es el del 'keyword'.
 
             if ($this->searchableKeyword) {
 
@@ -177,8 +178,7 @@ trait Searchzy {
             }
         });
 
-
-        // Aplicación del los where's de los atributos filterable.
+        // Aplicación del los where's de los atributos filterable propios del Modelo.
 
         $filterableModelInputs = $this->parseModelInputs($this->filterableInputs);
 
@@ -189,7 +189,7 @@ trait Searchzy {
             $query->where($column, '=', str_trimmer($value));
         }
 
-        // Se añade los constraints para las relaciones vía searchable del Modelo.
+        // Se añade los constraints para las relaciones definidads en el searchable del Modelo.
 
         $searchableRelationInputs = $this->parseRelationInputs($this->searchableInputs);
 
@@ -213,7 +213,7 @@ trait Searchzy {
             }]);
         }
 
-        // Se añade los constraints para las relaciones vía filterable del Modelo.
+        // Se añade los constraints de las relaciones definidads en el filterable del Modelo.
 
         $filterableRelationInputs = $this->parseRelationInputs($this->filterableInputs);
 
@@ -236,10 +236,9 @@ trait Searchzy {
     }
 
     /**
-     * Parsea los constraints asociadas a una relación del Modelo.
+     * Agrupa las closures por cada relación en {relationConstraints}.
      *
      * @param  array  $relations
-     * @param  string $property
      * @return void
      */
     protected function addRelationConstraints(array $relations){
@@ -251,7 +250,8 @@ trait Searchzy {
     }
 
     /**
-     * Asocia y aplica los closures que fueron definidos para cada relación.
+     * Sí hay closures en las relaciones, aplica al query y agrupalas
+     * por cada la relación en {eagerRelationConstraints}.
      *
      * @param  Builder $query
      * @return Builder
@@ -276,7 +276,8 @@ trait Searchzy {
     }
 
     /**
-     * Carga los constraints de las relaciones del Modelo al query enviado.
+     * Aplica los 'closures' que estan en {eagerRelationConstraints}
+     * por cada relación vía whereHas.
      *
      * @param  Builder $query
      * @return Builder
@@ -295,7 +296,8 @@ trait Searchzy {
     }
 
     /**
-     * Parsea los inputs con el valor de la keyword.
+     * Retorna un array con los inputs 'searchables' cuyo valor
+     * será el que ingresado en la 'keyword'.
      *
      * @param  string $keyword
      * @return array
@@ -319,7 +321,7 @@ trait Searchzy {
     }
 
     /**
-     * Obtiene los 'inputs' definidos en el Modelo.
+     * Obtiene los inputs definidos en el Modelo de las propiedades 'searchable' y 'filterable'.
      *
      * @param  string $property
      * @return array
@@ -343,41 +345,15 @@ trait Searchzy {
     }
 
     /**
-     * Obtiene los inputs del Modelo de la URL.
-     *
-     * @param   array $params
-     * @return  array
-     */
-    public function paramsURL($extraParams = []){
-
-        $searchable = property_exists($this, 'searchable') ? Arr::wrap($this->searchable) : [];
-
-        $searchable = Arr::isAssoc($searchable) ? array_keys($searchable) : $searchable;
-
-        $filterable = property_exists($this, 'filterable') ? Arr::wrap($this->filterable) : [];
-
-        $filterable = Arr::isAssoc($filterable) ? array_keys($filterable) : $filterable;
-
-        $extraParams = Arr::wrap($extraParams);
-
-        $keyword = Arr::wrap(config('searchzy.keyword'));
-
-        $params  = array_merge($searchable, $filterable, $keyword, $extraParams);
-
-        $params  = array_only_filler(request()->all(), $params, '');
-
-        return $params;
-    }
-
-    /**
-     * Obtiene los inputs del Modelo de la URL.
+     * Obtiene los inputs definidos en el Modelo que estan en el Request.
      *
      * @link    (https://timacdonald.me/query-scopes-meet-action-scopes/)
      * @param   Builder $query
-     * @param   array   $params
+     * @param   array   $extraParams
+     * @param   mixed   $default
      * @return  array
      */
-    public function scopeSearchzyInputs($query, $extraParams = [], $fillable = '') : array {
+    public function scopeSearchzyInputs($query, $extraParams = [], $default = '') : array {
 
         $searchable = property_exists($this, 'searchable') ? Arr::wrap($this->searchable) : [];
 
@@ -393,7 +369,7 @@ trait Searchzy {
 
         $params  = array_merge($searchable, $filterable, $keyword, $extraParams);
 
-        $params  = array_only_filler(request()->all(), $params, $fillable);
+        $params  = array_only_filler(request()->all(), $params, $default);
 
         return $params;
     }

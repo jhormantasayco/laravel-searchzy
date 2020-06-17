@@ -1,1 +1,1 @@
-C:37:"PHPUnit\Runner\DefaultTestResultCache":122:{a:2:{s:7:"defects";a:0:{}s:5:"times";a:1:{s:62:"Jhormantasayco\LaravelSearchzy\Tests\ExampleTest::true_is_true";d:0.074;}}}
+C:37:"PHPUnit\Runner\DefaultTestResultCache":122:{a:2:{s:7:"defects";a:0:{}s:5:"times";a:1:{s:62:"Jhormantasayco\LaravelSearchzy\Tests\ExampleTest::true_is_true";d:0.071;}}}

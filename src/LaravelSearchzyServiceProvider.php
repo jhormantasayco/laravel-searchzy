@@ -22,6 +22,8 @@ class LaravelSearchzyServiceProvider extends ServiceProvider
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'searchzy');
+
         $this->loadRoutesFrom(__DIR__.'/helpers.php');
 
         if ($this->app->runningInConsole()) {
@@ -31,9 +33,9 @@ class LaravelSearchzyServiceProvider extends ServiceProvider
             ], 'config');
 
             // Publishing the views.
-            /*$this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-searchzy'),
-            ], 'views');*/
+            $this->publishes([
+                __DIR__.'/../resources/views' => resource_path('views/vendor/searchzy'),
+            ], 'views');
 
             // Publishing assets.
             /*$this->publishes([
