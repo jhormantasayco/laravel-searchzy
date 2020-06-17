@@ -1,0 +1,56 @@
+{
+    "name": "jhormantasayco/laravel-searchzy",
+    "description": "Simple and lightweight search to eloquent models",
+    "keywords": [
+        "jhormantasayco",
+        "laravel-searchzy",
+        "laravel",
+        "search",
+        "eloquent"
+    ],
+    "homepage": "https://github.com/jhormantasayco/laravel-searchzy",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jhorman Alexander Tasayco",
+            "email": "jhorman@tasayco.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "illuminate/support": "^6.0",
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jhormantasayco\\LaravelSearchzy\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jhormantasayco\\LaravelSearchzy\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jhormantasayco\\LaravelSearchzy\\LaravelSearchzyServiceProvider"
+            ],
+            "aliases": {
+                "LaravelSearchzy": "Jhormantasayco\\LaravelSearchzy\\LaravelSearchzyFacade"
+            }
+        }
+    }
+}
