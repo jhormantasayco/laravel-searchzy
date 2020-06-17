@@ -5,6 +5,14 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/jhormantasayco/laravel-searchzy.svg?style=flat-square)](https://scrutinizer-ci.com/g/jhormantasayco/laravel-searchzy)
 [![Total Downloads](https://img.shields.io/packagist/dt/jhormantasayco/laravel-searchzy.svg?style=flat-square)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
 
+[![Build Status](https://travis-ci.org/jhormantasayco/laravel-searchzy.svg?branch=master)](https://travis-ci.org/jhormantasayco/laravel-searchzy.svg?branch=master)
+[![Latest Stable on Packagist](https://poser.pugx.org/jhormantasayco/laravel-searchzy/v/stable)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
+[![Total Downloads](https://poser.pugx.org/jhormantasayco/laravel-searchzy/downloads)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
+[![License](https://poser.pugx.org/jhormantasayco/laravel-searchzy/license)](https://packagist.org/packages/jhormantasayco/laravel-searchzy)
+[![Sonar Cloud](https://sonarcloud.io/api/project_badges/measure?project=jhormantasayco_laravel-searchzy&metric=alert_status)](https://sonarcloud.io/dashboard?id=jhormantasayco_laravel-searchzy)
+
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=jhormantasayco_laravel-searchzy)](https://sonarcloud.io/dashboard?id=jhormantasayco_laravel-searchzy)
+
 Simple and lightweight search to eloquent models.
 
 ## Installation
