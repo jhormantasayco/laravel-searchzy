@@ -299,7 +299,6 @@ trait Searchzy {
      * Retorna un array con los inputs 'searchables' cuyo valor
      * será el que ingresado en la 'keyword'.
      *
-     * @param  string $keyword
      * @return array
      */
     protected function getInputsKeyword(){
@@ -350,7 +349,7 @@ trait Searchzy {
      * @link    (https://timacdonald.me/query-scopes-meet-action-scopes/)
      * @param   Builder $query
      * @param   array   $extraParams
-     * @param   mixed   $default
+     * @param   string  $default
      * @return  array
      */
     public function scopeSearchzyInputs($query, $extraParams = [], $default = '') : array {

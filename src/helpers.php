@@ -44,7 +44,7 @@ if (! function_exists('array_only_filler')) {
      *
      * @param  array $array
      * @param  array $keys
-     * @param  mixed $default
+     * @param  string $default
      * @param  array
      */
     function array_only_filler($array, $keys = [], $default = NULL){
@@ -137,8 +137,6 @@ if (! function_exists('str_highlight')) {
      * @return string
      */
     function str_highlight($string, $word, $class = 'highlight') {
-
-        $keyword = $word;
 
         $string = str_sanitize($string);
 
