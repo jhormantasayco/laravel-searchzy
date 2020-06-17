@@ -22,10 +22,10 @@ composer require jhormantasayco/laravel-searchzy
 
 ## Uso en los Models
 
-Para añadir searchzy deberas de hace lo siguiente:
+Para añadir searchzy deberás de hacer lo siguiente:
 
 1. Usar el trait `Jhormantasayco\LaravelSearchzy\Searchzy` en tus modelos.
-2. Especificar mediante un array asociativo que columnas serán usadas por searchzy para la búsqueda y filtrado (Las keys del array se refieren a los inputs del request y los values represetan las columnas - relaciones de búsqueda).
+2. Especificar mediante un array asociativo las columnas que serán usadas por searchzy para la búsqueda y filtrado de los registros. Las keys del array se refieren a los inputs del request y los values represetan las columnas de la base de datos del Modelo. También se puede filtrar por medio de las relaciones Eloquent del Modelo ('relation:column').
 
 Aquí hay un ejemplo:
 
@@ -62,7 +62,7 @@ class MyModel extends Model
 ```
 ## Uso en los Controllers
 
-Simplemente tienes que añadir el scope de `searchzy` en tus consultas y listo. El resultado filtratá los regitros según lo definido en el Model.
+Simplemente tienes que añadir el scope de `searchzy` en tus consultas y listo. El resultado filtrará los registros según los datos enviados en el request.
 
 ``` php
 public function index(){
@@ -70,7 +70,7 @@ public function index(){
     // Obtiene los inputs del request y sus respectivos valores.
     $params = Usuario::searchzyInputs();
 
-    // Realiza la consulta en la base de datos mediante el Model
+    // Realiza la consulta a la base de datos mediante el Model.
 	$oUsuarios = Usuario::withCount(['posts AS posts_count'])
                     ->with(['posts'])
                     ->searchzy()
@@ -86,23 +86,21 @@ public function index(){
 Para implementar el campo de búsqueda en la vista deberás de hacer lo siguiente:
 
 ``` html
-<input type="text" name="{{ config('searchzy.keyword') }}" value="{{ ${config('searchzy.keyword')} }}">
+<input type="text" name="{{ config('searchzy.keyword') }}" value="{{ ${config('searchzy.keyword')} }}" class="form-control" class="Buscar a un usuario por su nombre, dni, telefono, correo electrónico, titulo o descripción de sus posts">
 ```
 
-Sí usas el package de `laravelcollective/html` la implementación sería:
+Sí usas el package de `laravelcollective/html` la implementación sería la siguiente:
 
 ``` blade
 {!! Form::text(config('searchzy.keyword'), ${config('searchzy.keyword')}, [
-    'class'       => 'form-control ',
+    'class'       => 'form-control',
     'placeholder' => 'Buscar a un usuario por su nombre, dni, telefono, correo electrónico, titulo o descripción de sus posts'
 ]) !!}
 ```
 
-Y Listo, ya puedes usar searchzy y filtrar tus registros.
-
 ### Demo
 
-Puede ver una demo del package en [https://searchzy.tasayco.com](https://searchzy.tasayco.com) cuyo repositorio es [https://github.com/jhormantasayco/laravel-searchzy-demo](https://github.com/jhormantasayco/laravel-searchzy-demo)
+Puedes ver una demo del package en [https://searchzy.tasayco.com](https://searchzy.tasayco.com) cuyo repositorio es [https://github.com/jhormantasayco/laravel-searchzy-demo](https://github.com/jhormantasayco/laravel-searchzy-demo)
 
 ### Testing
 
