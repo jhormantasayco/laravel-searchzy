@@ -122,6 +122,7 @@ Nótese  que el nombre del select debe de ser igual al definido en la keys del a
 
 ### Requerimientos
 - PHP 7.2 o superior.
+- Laravel 6.0 o superior.
 
 ### Demo
 
