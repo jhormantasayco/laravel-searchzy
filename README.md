@@ -22,11 +22,11 @@ composer require jhormantasayco/laravel-searchzy
 
 ## Uso en los Models
 
-Para añadir searchzy deberás de hacer lo siguiente:
+Para añadir searchzy debes de hacer lo siguiente:
 
 1. Usar el trait `Jhormantasayco\LaravelSearchzy\Searchzy` en tus Models.
 2. Especificar mediante un array asociativo las columnas que serán usadas por searchzy para la búsqueda y filtrado de los registros.
- Las keys del array represetan al nombre de la variable que almacena la data del request y los values representan a las columnas o relaciones del Model. Para asociar una relación se usa la siguiente nomenclatura `(relation:column)` como se describe en el siguiente ejemplo:
+ Las keys del array representan el nombre de la variable que almacena la data del request y los values representan a las columnas o relaciones del Model. Para asociar una relación del Model se usa la siguiente nomenclatura `(relation:column)` como se describe en el siguiente ejemplo:
 
 
 ``` php
@@ -62,7 +62,7 @@ class MyModel extends Model
 ```
 ## Uso en los Controllers
 
-Simplemente tienes que añadir el scope de searchzy en tus consultas para que se pueda realizar la búsqueda y filtrado de registros según los datos enviados en el request cuyos nombres coincidan con lo descrito en los arrays asociativos del Model.
+Simplemente tienes que añadir el scope de searchzy en tus consultas para que se pueda realizar la búsqueda y filtrado de registros según los datos enviados en el request. Searchzy sólo trabajará con los datos cuyos nombres coincidan con lo descrito en los arrays asociativos del Model.
 
 ``` php
 public function index(){
@@ -83,7 +83,7 @@ public function index(){
 
 ## Uso en las Views
 
-Para realizar la búsqueda searchzy implementa una keyword de búsqueda que por defecto es `word`. La configuración se ubica en `config/searchzy.php` donde usted puede cambiar este valor según su necesidad.
+Para realizar la búsqueda de registros searchzy implementa una keyword que por defecto es `word`. La configuración se ubica en `config/searchzy.php` donde usted puede cambiar este valor según su necesidad.
 
 La implementar del campo de búsqueda se realiza de la siguiente manera
 
