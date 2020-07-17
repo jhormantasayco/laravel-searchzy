@@ -24,8 +24,6 @@ class LaravelSearchzyServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'searchzy');
 
-        $this->loadRoutesFrom(__DIR__.'/helpers.php');
-
         if ($this->app->runningInConsole()) {
 
             $this->publishes([

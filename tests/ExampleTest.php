@@ -13,4 +13,22 @@ class ExampleTest extends TestCase
 
         $this->assertTrue(true);
     }
+
+    /** @test */
+    public function array_is_associative(){
+
+        $this->assertTrue(array_is_assoc(['name' => 'Jhorman']));
+    }
+
+    /** @test */
+    public function array_equals_using_only_filter(){
+
+        $this->assertEquals(
+        	['name' => 'Jhorman', 'job' => NULL],
+        	array_only_filler(
+				['name' => 'Jhorman', 'lastname' => 'Tasayco'],
+        		['name', 'job']
+        	)
+        );
+    }
 }
