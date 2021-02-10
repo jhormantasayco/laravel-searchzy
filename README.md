@@ -91,7 +91,7 @@ class MyModel extends Model
 ```
 ## ¿Propiedad o Método?
 
-Puedes usar cualquiera de las vias que se presentan en el ejemplo, ya sea por medio de una propiedad o método del Modelo. Usad la forma con la cual te sientas más comodo.
+Puedes usar cualquiera de las vias que se presentan en el ejemplo, ya sea por medio de una propiedad o un método, todo funcionará sin problemas. Usa la forma con la cual te sientas más comodo.
 
 ## Uso en los Controllers
 
@@ -169,6 +169,7 @@ Puedes ver una demo del package en los siguientes enlaces:
 ./vendor/bin/phpunit
 ./vendor/bin/phpcpd src
 ./vendor/bin/phpcs src
+./vendor/bin/phpstan analyse src
 ```
 
 ### Changelog
