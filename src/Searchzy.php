@@ -24,6 +24,13 @@ trait Searchzy
     private $eagerRelationConstraints = [];
 
     /**
+     * Define el array con los valores searchable con la 'keyword' de searchzy.
+     *
+     * @var array
+     */
+    private $searchableInputsKeyword;
+
+    /**
      * Define el array con todos los inputs searchable del Modelo.
      *
      * @var array
@@ -132,20 +139,17 @@ trait Searchzy
     }
 
     /**
-     * Parsea los inputs de búsqueda del Modelo.
+     * Aplica los 'wheres' que serán aplicado en la tabla del Modelo
      *
      * @param  Builder $query
      * @return Builder
      */
-    private function parseInputsKeywordConstraints($query): Builder
+    private function applySearchableConstraints($query): Builder
     {
-        // Aplicación del los where's de los atributos searchable propios del Modelo.
 
         $searchableModelInputs = $this->parseModelInputs($this->searchableInputsKeyword);
 
-        $query = $query->where(function ($query) use ($searchableModelInputs) {
-
-            // Aplicación de los where's en las columnas propias del Modelo, cuyo valor es el del 'keyword'.
+        if (count($searchableModelInputs)) {
 
             $query = $query->where(function ($query) use ($searchableModelInputs) {
 
@@ -153,7 +157,7 @@ trait Searchzy
 
                     $value = Arr::get($this->searchableInputsKeyword, $attribute, $this->searchableKeyword);
 
-                    if ($value) {
+                    if (filter_nullables($value)) {
 
                         $query->orWhere($attribute, 'LIKE', "%{$value}")
                             ->orWhere($attribute, 'LIKE', "{$value}%")
@@ -161,41 +165,80 @@ trait Searchzy
                     }
                 }
             });
+        }
 
-            // Aplicación de los where's de las relaciones del Modelo, cuyo valor es el del 'keyword'.
+        return $query;
+    }
 
-            if ($this->searchableKeyword) {
+    /**
+     * Aplica los 'wheres' que serán aplicado en la relaciones del Modelo.
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    private function applySearchableRelationConstraints($query): Builder
+    {
 
-                $searchableRelationInputs = $this->parseRelationInputs($this->searchableInputsKeyword);
+        if (filter_nullables($this->searchableKeyword)) {
 
-                $searchableRelation = $this->parseRelationInputs($this->searchableInputs);
+            $searchableRelationInputs = $this->parseRelationInputs($this->searchableInputsKeyword);
 
-                foreach ($searchableRelationInputs as $attribute => $columns) {
+            $searchableRelation = $this->parseRelationInputs($this->searchableInputs);
 
-                    if (!in_array($attribute, array_keys($searchableRelation))) {
+            foreach ($searchableRelationInputs as $attribute => $columns) {
 
-                        $query->orWhereHas($attribute, function ($query) use ($attribute, $searchableRelationInputs) {
+                if (!in_array($attribute, array_keys($searchableRelation))) {
 
-                            $query = $query->where(function ($query) use ($attribute, $searchableRelationInputs) {
+                    $query->orWhereHas($attribute, function ($query) use ($attribute, $searchableRelationInputs) {
 
-                                $columns = $searchableRelationInputs[$attribute] ?? [];
+                        $query = $query->where(function ($query) use ($attribute, $searchableRelationInputs) {
 
-                                foreach ($columns as $column) {
+                            $columns = $searchableRelationInputs[$attribute] ?? [];
 
-                                    $value = $this->searchableInputsKeyword["{$attribute}:{$column}"] ?? $this->searchableKeyword;
+                            foreach ($columns as $column) {
 
-                                        $query->orWhere($column, 'LIKE', "%{$value}")
-                                            ->orWhere($column, 'LIKE', "{$value}%")
-                                            ->orWhere($column, 'LIKE', "%{$value}%");
+                                $value = $this->searchableInputsKeyword["{$attribute}:{$column}"] ?? $this->searchableKeyword;
+
+                                if (filter_nullables($value)) {
+
+                                    $query->orWhere($column, 'LIKE', "%{$value}")
+                                        ->orWhere($column, 'LIKE', "{$value}%")
+                                        ->orWhere($column, 'LIKE', "%{$value}%");
                                 }
-                            });
+                            }
                         });
-                    }
+                    });
                 }
             }
-        });
+        }
 
-        // Aplicación del los where's de los atributos filterable propios del Modelo.
+        return $query;
+    }
+
+    /**
+     * Obtiene el operador del where usado en el armado de la consulta de filterable.
+     *
+     * @param  mixed $value
+     * @return array
+     */
+    private function getOperatorFilterable($value): array
+    {
+
+        $operator = is_array($value) ? 'whereIn' : 'where';
+
+        $value = is_array($value) ? array_filter($value, 'filter_nullables') : str_trimmer($value);
+
+        return [$operator, $value];
+    }
+
+    /**
+     * Aplicación del los where's de los atributos filterable propios del Modelo.
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    private function applyFilterableConstraints($query): Builder
+    {
 
         $filterableModelInputs = $this->parseModelInputs($this->filterableInputs);
 
@@ -203,9 +246,7 @@ trait Searchzy
 
         foreach ($filterableModelInputs as $column => $value) {
 
-            $operator = is_array($value) ? 'whereIn' : 'where';
-
-            $value    = is_array($value) ? array_filter($value, 'filter_nullables') : str_trimmer($value);
+            list($operator, $value) = $this->getOperatorFilterable($value);
 
             if (is_array($value) and !count($value)) {
                 break;
@@ -214,56 +255,103 @@ trait Searchzy
             $query->{$operator}($column, $value);
         }
 
-        // Se añade los constraints para las relaciones definidads en el searchable del Modelo.
+        return $query;
+    }
+
+    /**
+     * Añade la relación y su callback en un array para despues ser llamada via whereHas.
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    private function addRelationSearchableFromConstraint($query): void
+    {
 
         $searchableRelationInputs = $this->parseRelationInputs($this->searchableInputs);
 
-        foreach ($searchableRelationInputs as $attribute => $columns) {
+        if (count($searchableRelationInputs)) {
 
-            $this->addRelationConstraints([$attribute => function ($query) use ($attribute, $searchableRelationInputs) {
+            foreach ($searchableRelationInputs as $attribute => $columns) {
 
-                $columns = $searchableRelationInputs[$attribute] ?? [];
+                $this->addRelationConstraints([$attribute => function ($query) use ($attribute, $searchableRelationInputs) {
 
-                foreach ($columns as $column) {
+                    $columns = $searchableRelationInputs[$attribute] ?? [];
 
-                    $value = Arr::get($this->searchableInputs, "{$attribute}:{$column}");
+                    foreach ($columns as $column) {
 
-                    $query->where(function ($query) use ($column, $value) {
+                        $value = Arr::get($this->searchableInputs, "{$attribute}:{$column}");
 
-                        $query->orWhere($column, 'LIKE', "%{$value}")
-                            ->orWhere($column, 'LIKE', "{$value}%")
-                            ->orWhere($column, 'LIKE', "%{$value}%");
-                    });
-                }
-            }]);
+                        if (filter_nullables($value)) {
+
+                            $query->where(function ($query) use ($column, $value) {
+
+                                $query->orWhere($column, 'LIKE', "%{$value}")
+                                    ->orWhere($column, 'LIKE', "{$value}%")
+                                    ->orWhere($column, 'LIKE', "%{$value}%");
+                            });
+                        }
+                    }
+                }]);
+            }
         }
+    }
 
-        // Se añade los constraints de las relaciones definidads en el filterable del Modelo.
+    /**
+     * Añade la relación y su callback en un array para despues ser llamada via whereHas.
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    private function addRelationFilterableFromConstraint($query): void
+    {
 
         $filterableRelationInputs = $this->parseRelationInputs($this->filterableInputs);
 
-        foreach ($filterableRelationInputs as $attribute => $columns) {
+        if (count($filterableRelationInputs)) {
 
-            $this->addRelationConstraints([$attribute => function ($query) use ($attribute, $filterableRelationInputs) {
+            foreach ($filterableRelationInputs as $attribute => $columns) {
 
-                $columns = $filterableRelationInputs[$attribute] ?? [];
+                $this->addRelationConstraints([$attribute => function ($query) use ($attribute, $filterableRelationInputs) {
 
-                foreach ($columns as $column) {
+                    $columns = $filterableRelationInputs[$attribute] ?? [];
 
-                    $value = Arr::get($this->filterableInputs, "{$attribute}:{$column}");
+                    foreach ($columns as $column) {
 
-                    $operator = is_array($value) ? 'whereIn' : 'where';
+                        $value = Arr::get($this->filterableInputs, "{$attribute}:{$column}");
 
-                    $value    = is_array($value) ? array_filter($value, 'filter_nullables') : str_trimmer($value);
+                        list($operator, $value) = $this->getOperatorFilterable($value);
 
-                    if (is_array($value) and !count($value)) {
-                        break;
+                        if (is_array($value) and !count($value)) {
+                            break;
+                        }
+
+                        $query->{$operator}($column, $value);
                     }
-
-                    $query->{$operator}($column, $value);
-                }
-            }]);
+                }]);
+            }
         }
+    }
+
+    /**
+     * Parsea los inputs de búsqueda del Modelo.
+     *
+     * @param  Builder $query
+     * @return Builder
+     */
+    private function parseInputsKeywordConstraints($query): Builder
+    {
+        $query = $query->where(function ($query) {
+            $this->applySearchableConstraints($query);
+            $this->applySearchableRelationConstraints($query);
+        });
+
+        $query = $this->applyFilterableConstraints($query);
+
+        /** Añade los closures a un array para ser luego usado cuando se cargan su relaciones */
+
+        $this->addRelationSearchableFromConstraint($query);
+
+        $this->addRelationFilterableFromConstraint($query);
 
         return $query;
     }

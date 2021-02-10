@@ -26,7 +26,7 @@ if (! function_exists('filter_nullables')) {
      */
     function filter_nullables($value): bool
     {
-        return ($value !== null && $value !== false && $value !== '');
+        return ($value !== null && $value !== false && str_trimmer($value) !== '');
     }
 }
 

@@ -31,4 +31,39 @@ class ExampleTest extends TestCase
         	)
         );
     }
+
+    /** @test */
+    public function filter_null_string(){
+
+        $this->assertTrue(filter_nullables('NULL'));
+    }
+
+    /** @test */
+    public function filter_false_string(){
+
+        $this->assertTrue(filter_nullables('FALSE'));
+    }
+
+    /** @test */
+    public function filter_nulls(){
+
+        $this->assertFalse(filter_nullables(NULL));
+    }
+
+    /** @test */
+    public function filter_falses(){
+        $this->assertFalse(filter_nullables(false));
+    }
+
+    /** @test */
+    public function filter_strings_empty(){
+
+        $this->assertFalse(filter_nullables(''));
+    }
+
+    /** @test */
+    public function filter_strings_empty_b2(){
+
+        $this->assertFalse(filter_nullables('        '));
+    }
 }
