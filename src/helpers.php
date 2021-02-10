@@ -16,6 +16,20 @@ if (! function_exists('str_trimmer')){
 	}
 }
 
+if (! function_exists('filter_nullables')) {
+
+    /**
+     * Verifica si tiene un valor válido, incluye zero.
+     *
+     * @param  mixed $value
+     * @return bool
+     */
+    function filter_nullables($value)
+    {
+        return ($value !== null && $value !== false && $value !== '');
+    }
+}
+
 if (! function_exists('array_filter_empty')){
 
 	/**
@@ -28,16 +42,13 @@ if (! function_exists('array_filter_empty')){
 
 		$array = array_map('str_trimmer', $array);
 
-		$array = array_filter($array, function($value) {
-
-		    return ($value !== null && $value !== false && $value !== '');
-		});
+		$array = array_filter($array, 'filter_nullables');
 
 		return $array;
 	}
 }
 
-if (! function_exists('array_only_filler')) {
+if (! function_exists('array_filler')) {
 
     /**
      * Retorna un array con las array enviadas como parámetro. Sí no existe la key añade un valor por defecto.
@@ -47,7 +58,7 @@ if (! function_exists('array_only_filler')) {
      * @param  string $default
      * @param  array
      */
-    function array_only_filler($array, $keys = [], $default = NULL){
+    function array_filler($array, $keys = [], $default = NULL){
 
     	$data = [];
 
