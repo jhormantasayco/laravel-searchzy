@@ -2,18 +2,18 @@
 
 use Illuminate\Support\Arr;
 
-if (! function_exists('str_trimmer')){
+if (! function_exists('str_trimmer')) {
 
-	/**
-	 * Retorna un string sin espacios en blancos.
-	 *
-	 * @param  string $string
-	 * @return string
-	 */
-	function str_trimmer($string){
-
-		return is_string($string) ? preg_replace('/\s+/', ' ', trim($string)) : $string;
-	}
+    /**
+     * Retorna un string sin espacios en blancos.
+     *
+     * @param  mixed $value
+     * @return mixed
+     */
+    function str_trimmer($value)
+    {
+        return is_string($value) ? preg_replace('/\s+/', ' ', trim($value)) : $value;
+    }
 }
 
 if (! function_exists('filter_nullables')) {
@@ -24,28 +24,50 @@ if (! function_exists('filter_nullables')) {
      * @param  mixed $value
      * @return bool
      */
-    function filter_nullables($value)
+    function filter_nullables($value): bool
     {
         return ($value !== null && $value !== false && $value !== '');
     }
 }
 
-if (! function_exists('array_filter_empty')){
+if (! function_exists('array_filter_empty')) {
 
-	/**
-	 * Filtra el array eliminando valores 'vacios'.
-	 *
-	 * @param  array $array
-	 * @return array
-	 */
-	function array_filter_empty($array){
+    /**
+     * Filtra el array eliminando valores 'vacios'.
+     *
+     * @param  array $array
+     * @return array
+     */
+    function array_filter_empty($array): array
+    {
+        $array = array_map('str_trimmer', $array);
+        $array = array_filter($array, 'filter_nullables');
 
-		$array = array_map('str_trimmer', $array);
+        return $array;
+    }
+}
 
-		$array = array_filter($array, 'filter_nullables');
+if (! function_exists('array_filter_recursive')) {
 
-		return $array;
-	}
+    /**
+     * Filtra de forma recursiva un array.
+     *
+     * @link   https://wpscholar.com/blog/filter-multidimensional-array-php/
+     * @param  array $array
+     * @param  callable $callback
+     * @return array
+     */
+    function array_filter_recursive(array $array, callable $callback = null): array
+    {
+        $array = is_callable($callback) ? array_filter($array, $callback) : array_filter($array);
+        foreach ($array as &$value) {
+            if (is_array($value)) {
+                $value = call_user_func(__FUNCTION__, $value, $callback);
+            }
+        }
+
+        return $array;
+    }
 }
 
 if (! function_exists('array_filler')) {
@@ -55,21 +77,19 @@ if (! function_exists('array_filler')) {
      *
      * @param  array $array
      * @param  array $keys
-     * @param  string $default
+     * @param  mixed $default
      * @param  array
      */
-    function array_filler($array, $keys = [], $default = NULL){
-
-    	$data = [];
-
+    function array_filler($array, $keys = [], $default = null): array
+    {
+        $data = [];
         $keys = Arr::wrap($keys);
 
-    	foreach ($keys as $key) {
+        foreach ($keys as $key) {
+            $data[$key] = Arr::get($array, $key, $default);
+        }
 
-    		$data[$key] = Arr::get($array, $key, $default);
-    	}
-
-    	return $data;
+        return $data;
     }
 }
 
@@ -81,11 +101,13 @@ if (! function_exists('array_is_assoc')) {
      * @param  array $array
      * @param  bool
      */
-    function array_is_assoc($array){
+    function array_is_assoc($array): bool
+    {
+        if (array() === $array) {
+            return false;
+        }
 
-    	if (array() === $array) return false;
-
-    	return array_keys($array) !== range(0, count($array) - 1);
+        return array_keys($array) !== range(0, count($array) - 1);
     }
 }
 
@@ -98,30 +120,27 @@ if (! function_exists('array_keys_replace')) {
      * @param  array $replace
      * @param  array
      */
-    function array_keys_replace($array, $replace){
+    function array_keys_replace($array, $replace): array
+    {
+        if (!array_is_assoc($array) or !array_is_assoc($replace)) {
+            return $array;
+        }
 
-    	if (!array_is_assoc($array) OR !array_is_assoc($replace)) {
+        $data = [];
 
-    		return $array;
-    	}
+        foreach ($array as $column => $value) {
+            if (Arr::has($replace, $column)) {
+                $key = Arr::get($replace, $column);
 
-    	$data = [];
+                $data[$key] = $value;
+            }
+        }
 
-    	foreach ($array as $column => $value) {
-
-    		if (Arr::has($replace, $column)) {
-
-    			$key = Arr::get($replace, $column);
-
-    			$data[$key] = $value;
-    		}
-    	}
-
-    	return $data;
+        return $data;
     }
 }
 
-if (! function_exists('array_range')){
+if (! function_exists('array_range')) {
 
     /**
      * Obtiene un rango de números representado por un array asociativo.
@@ -130,8 +149,8 @@ if (! function_exists('array_range')){
      * @param  integer $to
      * @return array
      */
-    function array_range($from, $to){
-
+    function array_range($from, $to): array
+    {
         return array_combine(range($from, $to), range($from, $to));
     }
 }
@@ -147,16 +166,16 @@ if (! function_exists('str_highlight')) {
      * @param  string  $class
      * @return string
      */
-    function str_highlight($string, $word, $class = 'highlight') {
-
+    function str_highlight($string, $word, $class = 'highlight'): string
+    {
         $string = str_sanitize($string);
-
         $word = str_sanitize($word);
 
-        if(!$word){ return $string; }
+        if (!$word) {
+            return $string;
+        }
 
         $replace = "<span class='{$class}'>$1</span>";
-
         $pattern = preg_quote($word);
 
         return preg_replace("/($pattern)/i", $replace, $string);
@@ -172,8 +191,8 @@ if (! function_exists('str_sanitize')) {
      * @param  string $string
      * @return string
      */
-    function str_sanitize($string) {
-
+    function str_sanitize($string): string
+    {
         $characters = [
             '0'    => ['°', '₀', '۰', '０'],
             '1'    => ['¹', '₁', '۱', '１'],
@@ -291,7 +310,6 @@ if (! function_exists('str_sanitize')) {
         ];
 
         foreach ($characters as $key => $value) {
-
             $string = str_replace($value, $key, $string);
         }
 

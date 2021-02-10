@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
-trait Searchzy {
-
+trait Searchzy
+{
     /**
      * Agrupa todas los closures de las relaciones del Modelo, en forma de árbol.
      *
@@ -64,13 +64,13 @@ trait Searchzy {
      * @param  Illuminate\Database\Eloquent\Builder $query
      * @return Illuminate\Database\Eloquent\Builder
      */
-    public function scopeSearchzy($query, $keyword = NULL, $request = NULL): Builder{
-
+    public function scopeSearchzy($query, $keyword = null, $request = null): Builder
+    {
         $keyword = $keyword ?: config('searchzy.keyword');
 
         $this->currentRequest = $request ?: request();
 
-        $this->searchableKeyword = $this->currentRequest->get($keyword, NULL);
+        $this->searchableKeyword = $this->currentRequest->get($keyword, null);
 
         $this->searchableInputsKeyword = $this->getInputsKeyword();
 
@@ -93,8 +93,8 @@ trait Searchzy {
      * @param  array $arrInputs
      * @return array
      */
-    private function parseRelationInputs($arrInputs) : array{
-
+    private function parseRelationInputs($arrInputs): array
+    {
         $relationInputs = [];
 
         foreach (array_keys($arrInputs) as $attribute) {
@@ -116,8 +116,8 @@ trait Searchzy {
      * @param  array $arrInputs
      * @return array
      */
-    private function parseModelInputs($arrInputs): array{
-
+    private function parseModelInputs($arrInputs): array
+    {
         $modelInputs = [];
 
         foreach (array_keys($arrInputs) as $attribute) {
@@ -137,17 +137,17 @@ trait Searchzy {
      * @param  Builder $query
      * @return Builder
      */
-    private function parseInputsKeywordConstraints($query) : Builder{
-
+    private function parseInputsKeywordConstraints($query): Builder
+    {
         // Aplicación del los where's de los atributos searchable propios del Modelo.
 
         $searchableModelInputs = $this->parseModelInputs($this->searchableInputsKeyword);
 
-        $query = $query->where(function($query) use ($searchableModelInputs){
+        $query = $query->where(function ($query) use ($searchableModelInputs) {
 
             // Aplicación de los where's en las columnas propias del Modelo, cuyo valor es el del 'keyword'.
 
-            $query = $query->where(function($query) use ($searchableModelInputs){
+            $query = $query->where(function ($query) use ($searchableModelInputs) {
 
                 foreach ($searchableModelInputs as $attribute) {
 
@@ -176,7 +176,7 @@ trait Searchzy {
 
                         $query->orWhereHas($attribute, function ($query) use ($attribute, $searchableRelationInputs) {
 
-                            $query = $query->where(function($query) use ($attribute, $searchableRelationInputs){
+                            $query = $query->where(function ($query) use ($attribute, $searchableRelationInputs) {
 
                                 $columns = $searchableRelationInputs[$attribute] ?? [];
 
@@ -207,6 +207,10 @@ trait Searchzy {
 
             $value    = is_array($value) ? array_filter($value, 'filter_nullables') : str_trimmer($value);
 
+            if (is_array($value) and !count($value)) {
+                break;
+            }
+
             $query->{$operator}($column, $value);
         }
 
@@ -224,7 +228,7 @@ trait Searchzy {
 
                     $value = Arr::get($this->searchableInputs, "{$attribute}:{$column}");
 
-                    $query->where(function($query) use ($column, $value){
+                    $query->where(function ($query) use ($column, $value) {
 
                         $query->orWhere($column, 'LIKE', "%{$value}")
                             ->orWhere($column, 'LIKE', "{$value}%")
@@ -252,6 +256,10 @@ trait Searchzy {
 
                     $value    = is_array($value) ? array_filter($value, 'filter_nullables') : str_trimmer($value);
 
+                    if (is_array($value) and !count($value)) {
+                        break;
+                    }
+
                     $query->{$operator}($column, $value);
                 }
             }]);
@@ -266,8 +274,8 @@ trait Searchzy {
      * @param  array  $relations
      * @return void
      */
-    private function addRelationConstraints(array $relations): void{
-
+    private function addRelationConstraints(array $relations): void
+    {
         foreach ($relations as $name => $closure) {
 
             $this->relationConstraints[$name][] = $closure;
@@ -281,13 +289,13 @@ trait Searchzy {
      * @param  Builder $query
      * @return Builder
      */
-    private function parseRelationConstraints($query) : Builder{
-
+    private function parseRelationConstraints($query): Builder
+    {
         if ($this->relationConstraints) {
 
             foreach ($this->relationConstraints as $relation => $constraints) {
 
-                $this->eagerRelationConstraints[$relation] = function($query) use ($constraints) {
+                $this->eagerRelationConstraints[$relation] = function ($query) use ($constraints) {
 
                     foreach ($constraints as $constraint) {
 
@@ -306,8 +314,8 @@ trait Searchzy {
      * @param  Builder $query
      * @return Builder
      */
-    private function loadRelationContraints($query): Builder {
-
+    private function loadRelationContraints($query): Builder
+    {
         if ($this->eagerRelationConstraints) {
 
             foreach ($this->eagerRelationConstraints as $relation => $closure) {
@@ -324,8 +332,8 @@ trait Searchzy {
      *
      * @return array
      */
-    private function getInputsKeyword(): array{
-
+    private function getInputsKeyword(): array
+    {
         $arrInputs  = [];
 
         $searchableInputsFromModel = $this->getInputsFromModel('searchable', 'searchableInputs');
@@ -334,7 +342,7 @@ trait Searchzy {
 
             foreach (array_keys($searchableInputsFromModel) as $column) {
 
-                $arrInputs[$column] = $this->searchableKeyword ?: $this->currentRequest->get($column, NULL);
+                $arrInputs[$column] = $this->searchableKeyword ?: $this->currentRequest->get($column, null);
             }
 
             $arrInputs = array_keys_replace($arrInputs, $searchableInputsFromModel);
@@ -350,13 +358,15 @@ trait Searchzy {
      * @param  string $method
      * @return array
      */
-    private function getInputsFromRequest($property, $method): array{
-
+    private function getInputsFromRequest($property, $method): array
+    {
         $inputsFromModel = $this->getInputsFromModel('filterable', 'filterableInputs');
 
         $filledInputs = array_filter_empty($this->currentRequest->only(array_keys($inputsFromModel)));
 
         $filledInputs = array_keys_replace($filledInputs, $inputsFromModel);
+
+        $filledInputs = array_filter_recursive($filledInputs, 'filter_nullables');
 
         return $filledInputs;
     }
@@ -369,8 +379,8 @@ trait Searchzy {
      * @param  bool $keys
      * @return array
      */
-    private function getInputsFromModel($property, $method, $keys = false): array{
-
+    private function getInputsFromModel($property, $method, $keys = false): array
+    {
         $inputs = [];
 
         $inputs = property_exists($this, $property) ? Arr::wrap($this->{$property}) : $inputs;
@@ -391,8 +401,8 @@ trait Searchzy {
      * @param   string  $default
      * @return  array
      */
-    public function scopeSearchzyInputs($query, $extra = [], $default = '', $request = NULL): array {
-
+    public function scopeSearchzyInputs($query, $extra = [], $default = '', $request = null): array
+    {
         $this->currentRequest = $request ?: request();
 
         $searchable  = $this->getInputsFromModel('searchable', 'searchableInputs', true);
@@ -411,5 +421,4 @@ trait Searchzy {
 
         return $inputs;
     }
-
 }

@@ -25,7 +25,7 @@ class ExampleTest extends TestCase
 
         $this->assertEquals(
         	['name' => 'Jhorman', 'job' => NULL],
-        	array_only_filler(
+        	array_filler(
 				['name' => 'Jhorman', 'lastname' => 'Tasayco'],
         		['name', 'job']
         	)

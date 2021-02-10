@@ -10,7 +10,7 @@
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=jhormantasayco_laravel-searchzy)](https://sonarcloud.io/dashboard?id=jhormantasayco_laravel-searchzy)
 
-Este package te permite buscar y filtrar registros de Eloquent Models en Laravel de una manera simple y sencilla.
+El package te permite buscar y filtrar registros de Eloquent Models en Laravel de una manera simple y sencilla. Compatible con la versión 6, 7, 8.
 
 ## Instalación
 
@@ -25,7 +25,7 @@ composer require jhormantasayco/laravel-searchzy
 Para añadir searchzy debes de hacer lo siguiente:
 
 1. Usar el trait `Jhormantasayco\LaravelSearchzy\Searchzy` en tus Models.
-2. Especificar mediante un array asociativo las columnas que serán usadas por searchzy para la búsqueda y filtrado de los registros.
+2. Especificar mediante un array asociativo por medio de una propiedad o un método que retorne un array, donde se especifique las columnas que serán usadas por searchzy para la búsqueda y filtrado de los registros.
  Las keys del array representan el nombre de la variable que almacena la data del request y los values representan a las columnas o relaciones del Model. Para asociar una relación del Model se usa la siguiente nomenclatura `(relation:column)` como se describe en el siguiente ejemplo:
 
 
@@ -37,7 +37,7 @@ class MyModel extends Model
     use Searchzy;
 
     /**
-     * The attributes that are searchable.
+     * The attributes that are searchable via property.
      *
      * @var array
      */
@@ -51,15 +51,48 @@ class MyModel extends Model
     ];
 
     /**
-     * The attributes that are filterable.
+     * The attributes that are searchable via method.
+     *
+     * @return array
+     */
+    public function searchableInputs(){
+
+        return [
+            'nombre'      => 'name',
+            'dni'         => 'code',
+            'phone'       => 'phone',
+            'email'       => 'email',
+            'post'        => 'posts:title',
+            'descripcion' => 'posts:description',
+        ];
+    }
+
+    /**
+     * The attributes that are filterable via property.
      *
      * @var array
      */
     protected $filterable = [
         'rol_id' => 'role_id',
     ];
+
+    /**
+     * The attributes that are filterable via method.
+     *
+     * @return array
+     */
+    public function filterableInputs(){
+
+        return [
+            'rol_id' => 'role_id',
+        ];
+    }
 }
 ```
+## ¿Propiedad o Método?
+
+Puedes usar cualquiera de las vias que se presentan en el ejemplo, ya sea por medio de una propiedad o método del Modelo. Usad la forma con la cual te sientas más comodo.
+
 ## Uso en los Controllers
 
 Simplemente tienes que añadir el scope de searchzy en tus consultas para que se pueda realizar la búsqueda y filtrado de registros según los datos enviados en el request. Searchzy sólo trabajará con los datos cuyos nombres coincidan con lo descrito en los arrays asociativos del Model.
@@ -134,6 +167,8 @@ Puedes ver una demo del package en los siguientes enlaces:
 
 ``` bash
 ./vendor/bin/phpunit
+./vendor/bin/phpcpd src
+./vendor/bin/phpcs src
 ```
 
 ### Changelog

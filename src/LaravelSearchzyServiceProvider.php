@@ -6,14 +6,13 @@ use Illuminate\Support\ServiceProvider;
 
 class LaravelSearchzyServiceProvider extends ServiceProvider
 {
-
     /**
      * Bootstrap the application services.
      *
      * @return void
      */
-    public function boot() {
-
+    public function boot()
+    {
         /*
          * Optional methods to load your package assets
          */
@@ -22,17 +21,17 @@ class LaravelSearchzyServiceProvider extends ServiceProvider
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'searchzy');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'searchzy');
 
         if ($this->app->runningInConsole()) {
 
             $this->publishes([
-                __DIR__.'/../config/searchzy.php' => config_path('searchzy.php'),
+                __DIR__ . '/../config/searchzy.php' => config_path('searchzy.php'),
             ], 'config');
 
             // Publishing the views.
             $this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/searchzy'),
+                __DIR__ . '/../resources/views' => resource_path('views/vendor/searchzy'),
             ], 'views');
 
             // Publishing assets.
@@ -55,9 +54,9 @@ class LaravelSearchzyServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register() {
-
+    public function register()
+    {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/searchzy.php', 'searchzy');
+        $this->mergeConfigFrom(__DIR__ . '/../config/searchzy.php', 'searchzy');
     }
 }
