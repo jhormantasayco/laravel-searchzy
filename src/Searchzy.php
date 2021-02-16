@@ -146,7 +146,6 @@ trait Searchzy
      */
     private function applySearchableConstraints($query): Builder
     {
-
         $searchableModelInputs = $this->parseModelInputs($this->searchableInputsKeyword);
 
         if (count($searchableModelInputs)) {
@@ -178,7 +177,6 @@ trait Searchzy
      */
     private function applySearchableRelationConstraints($query): Builder
     {
-
         if (filter_nullables($this->searchableKeyword)) {
 
             $searchableRelationInputs = $this->parseRelationInputs($this->searchableInputsKeyword);
@@ -223,7 +221,6 @@ trait Searchzy
      */
     private function getOperatorFilterable($value): array
     {
-
         $operator = is_array($value) ? 'whereIn' : 'where';
 
         $value = is_array($value) ? array_filter($value, 'filter_nullables') : str_trimmer($value);
@@ -239,7 +236,6 @@ trait Searchzy
      */
     private function applyFilterableConstraints($query): Builder
     {
-
         $filterableModelInputs = $this->parseModelInputs($this->filterableInputs);
 
         $filterableModelInputs = Arr::only($this->filterableInputs, $filterableModelInputs);
@@ -266,7 +262,6 @@ trait Searchzy
      */
     private function addRelationSearchableFromConstraint($query): void
     {
-
         $searchableRelationInputs = $this->parseRelationInputs($this->searchableInputs);
 
         if (count($searchableRelationInputs)) {
@@ -304,7 +299,6 @@ trait Searchzy
      */
     private function addRelationFilterableFromConstraint($query): void
     {
-
         $filterableRelationInputs = $this->parseRelationInputs($this->filterableInputs);
 
         if (count($filterableRelationInputs)) {
@@ -428,12 +422,12 @@ trait Searchzy
 
         if (count($searchableInputsFromModel)) {
 
-            foreach (array_keys($searchableInputsFromModel) as $column) {
+            foreach ($searchableInputsFromModel as $column) {
 
                 $arrInputs[$column] = $this->searchableKeyword ?: $this->currentRequest->get($column, null);
             }
 
-            $arrInputs = array_keys_replace($arrInputs, $searchableInputsFromModel);
+            $arrInputs = array_keys_replace($arrInputs, $this->getInputsFromModel('searchable', 'searchableInputs', true));
         }
 
         return $arrInputs;
@@ -448,11 +442,11 @@ trait Searchzy
      */
     private function getInputsFromRequest($property, $method): array
     {
-        $inputsFromModel = $this->getInputsFromModel('filterable', 'filterableInputs');
+        $inputsFromModel = $this->getInputsFromModel($property, $method);
 
-        $filledInputs = array_filter_empty($this->currentRequest->only(array_keys($inputsFromModel)));
+        $filledInputs = array_filter_empty($this->currentRequest->only($inputsFromModel));
 
-        $filledInputs = array_keys_replace($filledInputs, $inputsFromModel);
+        $filledInputs = array_keys_replace($filledInputs, $this->getInputsFromModel($property, $method, true));
 
         $filledInputs = array_filter_recursive($filledInputs, 'filter_nullables');
 
@@ -464,10 +458,9 @@ trait Searchzy
      *
      * @param  string $property
      * @param  string $method
-     * @param  bool $keys
      * @return array
      */
-    private function getInputsFromModel($property, $method, $keys = false): array
+    private function getInputsFromModel($property, $method, $associative = false): array
     {
         $inputs = [];
 
@@ -475,7 +468,11 @@ trait Searchzy
 
         $inputs = method_exists($this, $method) ? Arr::wrap($this->{$method}()) : $inputs;
 
-        $inputs = $keys ? (Arr::isAssoc($inputs) ? array_keys($inputs) : $inputs) : $inputs;
+        if ($associative) {
+            return $inputs;
+        }
+
+        $inputs = Arr::isAssoc($inputs) ? array_keys($inputs) : $inputs;
 
         return $inputs;
     }
@@ -493,11 +490,11 @@ trait Searchzy
     {
         $this->currentRequest = $request ?: request();
 
-        $searchable  = $this->getInputsFromModel('searchable', 'searchableInputs', true);
+        $searchable  = $this->getInputsFromModel('searchable', 'searchableInputs');
 
-        $filterable  = $this->getInputsFromModel('filterable', 'filterableInputs', true);
+        $filterable  = $this->getInputsFromModel('filterable', 'filterableInputs');
 
-        $aditionable = $this->getInputsFromModel('aditionable', 'aditionableInputs', true);
+        $aditionable = $this->getInputsFromModel('aditionable', 'aditionableInputs');
 
         $extra   = Arr::wrap($extra);
 
